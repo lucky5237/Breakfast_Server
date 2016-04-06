@@ -3,13 +3,8 @@
 
 # __author__ == 'jianlu'
 
-from app import api, app, db
-
-
-@app.route('/')
-def hellp():
-    return 'hello'
-
+from app import app
+import views
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
