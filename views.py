@@ -13,6 +13,7 @@ api.add_resource(ChangePwd, '/user/changePassword')
 api.add_resource(AveScore, '/user/aveScore')
 api.add_resource(UserInfo, '/user/userInfo')
 api.add_resource(OrdersNumRank,'/user/orderNumRank')
+api.add_resource(BonusRank,'/user/bonusRank')
 
 
 
