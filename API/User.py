@@ -37,6 +37,18 @@ courier_orderComment_fields = {
     'client_user_id': fields.Integer
 }
 
+orderNum_rank_fields = {
+    'username': fields.String,
+    'gender': fields.Integer,
+    'orderNum': fields.Integer
+}
+
+bonus_rank_fields = {
+    'username': fields.String,
+    'gender': fields.Integer,
+    'bonus': fields.Float
+}
+
 
 class Login(Resource):
     def post(self):
@@ -172,3 +184,27 @@ class Comments(Resource):
                 return jsonify(code='ACK', message='获取卖家信息成功', data=marshal(OrderComments, courier_orderComment_fields))
             else:
                 return jsonify(code='NACK', message='改卖家暂未收到评论')
+
+
+class OrdersNumRank(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        number = data.get('number')
+        type = data.get('type')
+        if number:  # 有数量限制
+            users = User.query.filter_by(type=type).order_by(User.orderNum.desc()).limit(number).all()
+        else:
+            users = User.query.filter_by(type=type).order_by(User.orderNum.desc()).all()
+        return jsonify(code='ACK', message='获取订单数榜单成功', data=marshal(users, orderNum_rank_fields))
+
+
+class BonusRank(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        number = data.get('number')
+        type = data.get('type')
+        if number:  # 有数量限制
+            users = User.query.filter_by(type=type).order_by(User.bonus.desc()).limit(number).all()
+        else:
+            users = User.query.filter_by(type=type).order_by(User.bonus.desc()).all()
+        return jsonify(code='ACK', message='获取悬赏金榜单成功', data=marshal(users, bonus_rank_fields))

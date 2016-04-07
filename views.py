@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app import api
-from API.User import Login, Register, CheckMobile, ChangePwd, AveScore, UserInfo
+from API.User import Login, Register, CheckMobile, ChangePwd, AveScore, UserInfo,BonusRank,OrdersNumRank
 from API.Order import MakeOrder, OrderList, Comment, TakeOrder, UpdateStatus
 from API.Food import SalesRank, PriceRank
 
@@ -12,6 +12,10 @@ api.add_resource(CheckMobile, '/user/checkMobile')
 api.add_resource(ChangePwd, '/user/changePassword')
 api.add_resource(AveScore, '/user/aveScore')
 api.add_resource(UserInfo, '/user/userInfo')
+api.add_resource(OrdersNumRank,'/user/orderNumRank')
+api.add_resource(BonusRank,'/user/bonusRank')
+
+
 
 # 订单相关路由
 api.add_resource(MakeOrder, '/order/makeOrder')
