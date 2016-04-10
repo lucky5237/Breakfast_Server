@@ -12,7 +12,9 @@ login_fields = {
     'password': fields.String,
     'gender': fields.Integer,
     'brief': fields.String,
-    'address': fields.String
+    'address': fields.String,
+    'bonus': fields.Float,
+    'orderNum': fields.Integer
 }
 
 userInfo_fields = {

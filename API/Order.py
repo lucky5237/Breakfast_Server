@@ -6,6 +6,7 @@ from app import db
 from datetime import datetime
 
 food_fields = {
+    'id': fields.Integer,
     'name': fields.String,
     'price': fields.Float,
     'place': fields.String,
@@ -18,23 +19,34 @@ orderDetail_fields = {
     'food': fields.Nested(food_fields)
 }
 
+user_fields = {
+    'id': fields.Integer,
+    'mobile': fields.String,
+    'username': fields.String,
+    'type': fields.Integer,
+    'gender': fields.Integer,
+    'brief': fields.String,
+    'bonus': fields.Float,
+    'orderNum': fields.Integer
+}
+
 ack_fields = {
     'id': fields.Integer,
-    'order_number': fields.String,
+    'order_number': fields.String(attribute='orderNumber'),
     'status': fields.Integer,
-    'create_ts': fields.String,
+    'createTs': fields.String(attribute='create_ts'),
     'amount': fields.Float,
     'bonus': fields.Float,
-    'received_ts': fields.String,
-    'delivery_ts': fields.String,
-    'finish_ts': fields.String,
-    'cancel_ts': fields.String,
-    'cancel_user_type': fields.Integer,
+    'receivedTs': fields.String(attribute='received_ts'),
+    'deliveryTs': fields.String(attribute='delivery_ts'),
+    'finishTs': fields.String(attribute='finish_ts'),
+    'cancelTs': fields.String(attribute='cancel_ts'),
+    'cancelUserType': fields.Integer(attribute='cancel_user_type'),
     'orderdetails': fields.Nested(orderDetail_fields),
-    'is_client_commented': fields.Integer,
-    'is_courier_commented': fields.Integer,
-    'client_user_id': fields.Integer,
-    'courier_user_id': fields.Integer
+    'isClientCommented': fields.Integer(attribute='is_client_commented'),
+    'isCourierCommented': fields.Integer(attribute='is_courier_commented'),
+    'clientUser': fields.Nested(user_fields),
+    'courierUser': fields.Nested(user_fields)
 }
 
 
@@ -59,7 +71,7 @@ class MakeOrder(Resource):  # 创建订单
 class OrderList(Resource):  # 获取订单列表
     def post(self):
         data = request.get_json(force=True)
-        type = data['type']  # 用户类型
+        type = data['userType']  # 用户类型
         userId = data['userId']  # 用户id
         try:
             if type == 0:  # 下单人

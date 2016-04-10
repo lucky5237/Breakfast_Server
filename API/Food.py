@@ -5,6 +5,7 @@ from model import Food
 from app import db
 
 ack_fields = {
+    'id': fields.Integer,
     'name': fields.String,
     'price': fields.Float,
     'place': fields.String,
