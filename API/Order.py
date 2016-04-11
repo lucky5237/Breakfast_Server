@@ -26,11 +26,12 @@ user_fields = {
     'type': fields.Integer,
     'gender': fields.Integer,
     'brief': fields.String,
+    'address': fields.String,
     'bonus': fields.Float,
     'orderNum': fields.Integer
 }
 
-ack_fields = {
+myOrderList_fields = {
     'id': fields.Integer,
     'order_number': fields.String(attribute='orderNumber'),
     'status': fields.Integer,
@@ -47,6 +48,17 @@ ack_fields = {
     'isCourierCommented': fields.Integer(attribute='is_courier_commented'),
     'clientUser': fields.Nested(user_fields),
     'courierUser': fields.Nested(user_fields)
+}
+
+newestOrder_fields = {
+    'id': fields.Integer,
+    'order_number': fields.String(attribute='orderNumber'),
+    'status': fields.Integer,
+    'createTs': fields.String(attribute='create_ts'),
+    'amount': fields.Float,
+    'bonus': fields.Float,
+    'orderdetails': fields.Nested(orderDetail_fields),
+    'clientUser': fields.Nested(user_fields)
 }
 
 
@@ -68,7 +80,7 @@ class MakeOrder(Resource):  # 创建订单
             return jsonify(code='NACK', message='下单失败,请稍后重试' + e.message)
 
 
-class OrderList(Resource):  # 获取订单列表
+class MyOrderList(Resource):  # 获取订单列表
     def post(self):
         data = request.get_json(force=True)
         type = data['userType']  # 用户类型
@@ -78,7 +90,7 @@ class OrderList(Resource):  # 获取订单列表
                 orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(client_user_id=userId).all()
             if type == 1:  # 接单人
                 orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(courier_user_id=userId).all()
-            return jsonify(code='ACK', message='获取全部订单成功', data=marshal(orders, ack_fields))
+            return jsonify(code='ACK', message='获取全部订单成功', data=marshal(orders, myOrderList_fields))
 
         except Exception as e:
             return jsonify(code='NACK', message='获取订单发生异常,请稍后重试')
@@ -190,3 +202,21 @@ class UpdateStatus(Resource):  # 更改订单状态
             except Exception:
                 db.session.rollback()
                 return jsonify(code='ACK', message='订单状态更改失败,请稍后再试')
+
+
+class NewestOrder(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        number = data.get('number')
+        flag = data.get('flag')  # 0-按时间最新排序 1-按悬赏高排序
+        if number:
+            if flag == 0:
+                orders = OrderInfo.query.filter_by(status=0).order_by(OrderInfo.create_ts.desc()).limit(number).all()
+            if flag == 1:
+                orders = OrderInfo.query.filter_by(status=0).order_by(OrderInfo.bonus.desc()).limit(number).all()
+        else:
+            if flag == 0:
+                orders = OrderInfo.query.filter_by(status=0).order_by(OrderInfo.create_ts.desc()).all()
+            if flag == 1:
+                orders = OrderInfo.query.filter_by(status=0).order_by(OrderInfo.bonus.desc()).all()
+        return jsonify(code='ACK', message='获取最新订单成功', data=marshal(orders, newestOrder_fields))
