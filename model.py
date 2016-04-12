@@ -9,9 +9,19 @@ class Food(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
-    place = db.Column(db.String(100), nullable=False)
+    placeId = db.Column(db.Integer, db.ForeignKey('place.id'))
     image = db.Column(db.String(255))
     sales = db.Column(db.Integer, default=0, nullable=False)
+    create_ts = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    place = db.relationship('Place', uselist=False)
+
+
+class Place(db.Model):
+    __tablename__ = 'place'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False)
+    orderNum = db.Column(db.Integer, default=0)
 
 
 class OrderComment(db.Model):

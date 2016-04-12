@@ -5,13 +5,20 @@ from model import OrderInfo, OrderComment, OrderDetail
 from app import db
 from datetime import datetime
 
+place_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'orderNum': fields.Integer
+
+}
 food_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'price': fields.Float,
-    'place': fields.String,
+    'place': fields.Nested(place_fields),
     'image': fields.String,
-    'sales': fields.Integer
+    'sales': fields.Integer,
+    'createTs': fields.String(attribute='create_ts')
 }
 
 orderDetail_fields = {

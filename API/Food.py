@@ -4,13 +4,20 @@ from flask import request, jsonify
 from model import Food
 from app import db
 
+place_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'orderNum': fields.Integer
+
+}
 ack_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'price': fields.Float,
-    'place': fields.String,
+    'place': fields.Nested(place_fields),
     'image': fields.String,
-    'sales': fields.Integer
+    'sales': fields.Integer,
+    'createTs': fields.String(attribute='create_ts')
 }
 
 
@@ -48,3 +55,23 @@ class PriceRank(Resource):  # 食品价格榜
             else:
                 foods = Food.query.order_by(Food.price.desc()).all()
         return jsonify(code='ACK', message='获取价格榜成功', data=marshal(foods, ack_fields))
+
+
+class AllFood(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        number = data.get('number')
+        placeId = data.get('placeId')
+        flag = data.get('flag')  # 0-销量 1-时间
+
+        if number:
+            if flag == 0:
+                foods = Food.query.filter_by(placeId=placeId).order_by(Food.sales.desc()).limit(number).all()
+            if flag == 1:
+                foods = Food.query.filter_by(placeId=placeId).order_by(Food.create_ts.desc()).limit(number).all()
+        else:
+            if flag == 0:
+                foods = Food.query.filter_by(placeId=placeId).order_by(Food.sales.desc()).all()
+            else:
+                foods = Food.query.filter_by(placeId=placeId).order_by(Food.create_ts.desc()).all()
+        return jsonify(code='ACK', message='获取食品列表成功', data=marshal(foods, ack_fields))
