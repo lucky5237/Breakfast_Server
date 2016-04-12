@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app import api
-from API.User import Login, Register, CheckMobile, ChangePwd, AveScore, UserInfo,BonusRank,OrdersNumRank
+from API.User import Login, Register, CheckMobile, ChangePwd, AveScore, UserInfo,BonusRank,OrdersNumRank,UserRank
 from API.Order import MakeOrder, MyOrderList, Comment, TakeOrder, UpdateStatus,NewestOrder
 from API.Food import SalesRank, PriceRank
 
@@ -14,6 +14,7 @@ api.add_resource(AveScore, '/user/aveScore')
 api.add_resource(UserInfo, '/user/userInfo')
 api.add_resource(OrdersNumRank,'/user/orderNumRank')
 api.add_resource(BonusRank,'/user/bonusRank')
+api.add_resource(UserRank,'/user/rank')
 
 
 

@@ -51,6 +51,13 @@ bonus_rank_fields = {
     'bonus': fields.Float
 }
 
+rank_fields = {
+    'username': fields.String,
+    'gender': fields.Integer,
+    'bonus': fields.Float,
+    'orderNum': fields.Integer
+}
+
 
 class Login(Resource):
     def post(self):
@@ -210,3 +217,22 @@ class BonusRank(Resource):
         else:
             users = User.query.filter_by(type=type).order_by(User.bonus.desc()).all()
         return jsonify(code='ACK', message='获取悬赏金榜单成功', data=marshal(users, bonus_rank_fields))
+
+
+class UserRank(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        number = data.get('number')  # 返回的数量 默认10条
+        type = data.get('type')  # 用户类型
+        flag = data.get('flag') # 0-悬赏金 1-订单数
+        if number:  # 有数量限制
+            if flag == 0:  # 按照悬赏金排行
+                users = User.query.filter_by(type=type).order_by(User.bonus.desc()).limit(number).all()
+            if flag == 1:  # 按照订单数排行
+                users = User.query.filter_by(type=type).order_by(User.orderNum.desc()).limit(number).all()
+        else:
+            if flag == 0:  # 按照悬赏金排行
+                users = User.query.filter_by(type=type).order_by(User.bonus.desc()).all()
+            if flag == 1:  # 按照订单数排行
+                users = User.query.filter_by(type=type).order_by(User.orderNum.desc()).all()
+        return jsonify(code='ACK', message='获取悬赏金榜单成功', data=marshal(users, rank_fields))
