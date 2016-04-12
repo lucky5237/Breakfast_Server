@@ -99,7 +99,6 @@ class MyOrderList(Resource):  # 获取订单列表
 class Comment(Resource):  # 订单评论
     def post(self):
         data = request.get_json(force=True)
-        print data
         type = data['type']  # 用户类型
         score = data['score']  # 用户评分分数
         orderId = data['orderId']  # 订单id
