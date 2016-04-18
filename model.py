@@ -37,19 +37,26 @@ class OrderComment(db.Model):
     courier_comment_ts = db.Column(db.DateTime)
     client_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     courier_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    client_user_name = db.Column(db.String(45))
+    courier_user_name = db.Column(db.String(45))
 
+    # client_user = db.relationship('User', uselist=False)
+    # courier_user = db.relationship('User', uselist=False)
 
-def __init__(self, order_id, client_score=None, client_comment=None, courier_score=None, courier_comment=None,
-             client_comment_ts=None, courier_comment_ts=None, client_user_id=None, courier_user_id=None):
-    self.order_id = order_id
-    self.client_score = client_score
-    self.client_comment = client_comment
-    self.courier_score = courier_score
-    self.courier_comment = courier_comment
-    self.client_comment_ts = client_comment_ts
-    self.courier_comment_ts = courier_comment_ts
-    self.client_user_id = client_user_id
-    self.courier_user_id = courier_user_id
+    def __init__(self, order_id, client_score=None, client_comment=None, courier_score=None, courier_comment=None,
+                 client_comment_ts=None, courier_comment_ts=None, client_user_id=None, courier_user_id=None,
+                 client_user_name=None, courier_user_name=None):
+        self.order_id = order_id
+        self.client_score = client_score
+        self.client_comment = client_comment
+        self.courier_score = courier_score
+        self.courier_comment = courier_comment
+        self.client_comment_ts = client_comment_ts
+        self.courier_comment_ts = courier_comment_ts
+        self.client_user_id = client_user_id
+        self.courier_user_id = courier_user_id
+        self.client_user_name = client_user_name
+        self.courier_user_name = courier_user_name
 
 
 class OrderDetail(db.Model):

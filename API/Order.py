@@ -81,7 +81,7 @@ class MakeOrder(Resource):  # 创建订单
         try:
             db.session.add(orderinfo)
             db.session.commit()
-            return jsonify(code='ACK', message='订单创建成功,快去首页看看吧')
+            return jsonify(code='ACK', message='订单创建成功,请等候接单')
         except Exception as e:
             db.session.rollback()
             return jsonify(code='NACK', message='下单失败,请稍后重试' + e.message)
@@ -106,30 +106,36 @@ class MyOrderList(Resource):  # 获取订单列表
 class Comment(Resource):  # 订单评论
     def post(self):
         data = request.get_json(force=True)
-        type = data['type']  # 用户类型
+        type = data['userType']  # 用户类型
         score = data['score']  # 用户评分分数
         orderId = data['orderId']  # 订单id
         comment = data['comment']  # 用户评论
         userId = data['userId']  # 用户id
+        userName = data['userName']  # 用户名
+        otherUserId = data['theOtherUserId']
+        otherUserName = data['theOtherUserName']
         orderComment = OrderComment.query.filter_by(order_id=orderId).first()
         if orderComment:  # 如果已经存在,更新表数据
             if type == 0:  # 下单人的评论
                 orderComment.courier_score = score
                 orderComment.courier_comment = comment
                 orderComment.courier_comment_ts = datetime.now()
-                OrderComment.client_user_id = userId
             if type == 1:
                 orderComment.client_score = score
                 orderComment.client_comment = comment
                 orderComment.client_comment_ts = datetime.now()
-                orderComment.courier_user_id = userId
+
         else:  # 如果双方第一次有人评论则创建数据
             if type == 0:  # 下单人的评论
                 mOrderComment = OrderComment(orderId, courier_score=score, courier_comment=comment,
-                                             courier_comment_ts=datetime.now(), client_user_id=userId)
+                                             courier_comment_ts=datetime.now(), client_user_id=userId,
+                                             client_user_name=userName, courier_user_id=otherUserId,
+                                             courier_user_name=otherUserName)
             if type == 1:
                 mOrderComment = OrderComment(orderId, client_score=score, client_comment=comment,
-                                             client_comment_ts=datetime.now(), courier_user_id=userId)
+                                             client_comment_ts=datetime.now(), courier_user_id=userId,
+                                             courier_user_name=userName, client_user_id=otherUserId,
+                                             client_user_name=otherUserName)
             db.session.add(mOrderComment)
 
         try:

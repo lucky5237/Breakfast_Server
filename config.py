@@ -4,5 +4,5 @@
 # __author__ == 'jianlu'
 
 DEBUG = True
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@127.0.0.1:3306/breakfast?charset=utf8'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@127.0.0.1:3306/breakfast2?charset=utf8'
 SQLALCHEMY_TRACK_MODIFICATIONS = False

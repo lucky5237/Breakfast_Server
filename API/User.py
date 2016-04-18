@@ -30,13 +30,15 @@ userInfo_fields = {
 client_orderComment_fields = {
     'client_comment': fields.String,
     'client_comment_ts': fields.String,
-    'courier_user_id': fields.Integer
+    'courier_user_id': fields.Integer,
+    'courier_user_name': fields.String
 }
 
 courier_orderComment_fields = {
     'courier_comment': fields.String,
     'courier_comment_ts': fields.String,
-    'client_user_id': fields.Integer
+    'client_user_id': fields.Integer,
+    'client_user_name': fields.String
 }
 
 orderNum_rank_fields = {
@@ -173,21 +175,25 @@ class Comments(Resource):
         number = data.get('number')
         if userType == 0:  # 卖家查看买家的评论
             if number:
-                OrderComments = OrderComment.query.filter_by(client_user_id=userId).order_by(
+                OrderComments = OrderComment.query.filter(OrderComment.client_comment != None,
+                                                          OrderComment.client_user_id == userId).order_by(
                     OrderComment.client_comment_ts.desc()).limit(number).all()
             else:
-                OrderComments = OrderComment.query.filter_by(client_user_id=userId).order_by(
+                OrderComments = OrderComment.query.filter(OrderComment.client_comment != None,
+                                                          OrderComment.client_user_id == userId).order_by(
                     OrderComment.client_comment_ts.desc()).all()
             if OrderComments:
                 return jsonify(code='ACK', message='获取买家信息成功', data=marshal(OrderComments, client_orderComment_fields))
             else:
-                return jsonify(code='NACK', message='改买家暂未收到评论')
+                return jsonify(code='NACK', message='该买家暂未收到评论')
         if userType == 1:  # 买家查看卖家的评论
             if number:
-                OrderComments = OrderComment.query.filter_by(courier_user_id=userId).order_by(
+                OrderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
+                                                          OrderComment.courier_user_id == userId).order_by(
                     OrderComment.courier_user_id.desc()).limit(number).all()
             else:
-                OrderComments = OrderComment.query.filter_by(courier_user_id=userId).order_by(
+                OrderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
+                                                          OrderComment.courier_user_id == userId).order_by(
                     OrderComment.courier_user_id.desc()).all()
             if OrderComments:
                 return jsonify(code='ACK', message='获取卖家信息成功', data=marshal(OrderComments, courier_orderComment_fields))
@@ -224,7 +230,7 @@ class UserRank(Resource):
         data = request.get_json(force=True)
         number = data.get('number')  # 返回的数量 默认10条
         type = data.get('type')  # 用户类型
-        flag = data.get('flag') # 0-悬赏金 1-订单数
+        flag = data.get('flag')  # 0-悬赏金 1-订单数
         if number:  # 有数量限制
             if flag == 0:  # 按照悬赏金排行
                 users = User.query.filter_by(type=type).order_by(User.bonus.desc()).limit(number).all()
