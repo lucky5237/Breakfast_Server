@@ -3,6 +3,7 @@ from flask_restful import Resource, fields, marshal
 from flask import request, jsonify
 from model import User, OrderInfo, OrderComment
 from app import db
+import os
 
 login_fields = {
     'id': fields.Integer,
@@ -160,8 +161,45 @@ class UserInfo(Resource):
     def post(self):
         data = request.get_json(force=True)
         userId = data['userId']
+        userType = data['userType']
+        number = data.get('number')
         user = User.query.filter_by(id=userId).first()
         if user:
+            if userType == 0:  # 卖家查看买家的个人详情页
+                orderInfos = OrderInfo.query.filter_by(client_user_id=userId, is_courier_commented=1).all()
+                if orderInfos:  # 有卖家评价过
+                    count = len(orderInfos)
+                    score = 0
+                    for orderInfo in orderInfos:
+                        orderComment = orderInfo.orderComment
+                        score += orderComment.client_score
+                    ackScore = (score + 0.0) / count
+                    if number:
+                        orderComments = OrderComment.query.filter(OrderComment.client_comment != None,
+                                                                  OrderComment.client_user_id == userId).order_by(
+                            OrderComment.client_comment_ts.desc()).limit(number).all()
+                    else:
+                        orderComments = OrderComment.query.filter(OrderComment.client_comment != None,
+                                                                  OrderComment.client_user_id == userId).order_by(
+                            OrderComment.client_comment_ts.desc()).all()
+            if userType == 1:  # 买家查看卖家的评论
+
+                orderInfos = OrderInfo.query.filter_by(courier_user_id=userId, is_client_commented=1).all()
+                if orderInfos:  # 有买家评价过
+                    count = len(orderInfos)
+                    score = 0
+                    for orderInfo in orderInfos:
+                        orderComment = orderInfo.orderComment
+                        score += orderComment.courier_score
+                    ackScore = (score + 0.0) / count
+                    if number:
+                        orderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
+                                                                  OrderComment.courier_user_id == userId).order_by(
+                            OrderComment.courier_user_id.desc()).limit(number).all()
+                    else:
+                        orderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
+                                                                  OrderComment.courier_user_id == userId).order_by(
+                            OrderComment.courier_user_id.desc()).all()
             return jsonify(code='ACK', message='获取用户信息成功', data=marshal(user, userInfo_fields))
         else:
             return jsonify(code='NACK', message='该用户不存在')
@@ -171,7 +209,7 @@ class Comments(Resource):
     def post(self):
         data = request.get_json(force=True)
         userId = data['userId']  # 对方id
-        userType = data['type']  # 对方type
+        userType = data['userType']  # 对方type
         number = data.get('number')
         if userType == 0:  # 卖家查看买家的评论
             if number:
@@ -242,3 +280,12 @@ class UserRank(Resource):
             if flag == 1:  # 按照订单数排行
                 users = User.query.filter_by(type=type).order_by(User.orderNum.desc()).all()
         return jsonify(code='ACK', message='获取悬赏金榜单成功', data=marshal(users, rank_fields))
+
+
+class UploadImage(Resource):
+    def post(self):
+        file=request.files['file']
+        if file :
+            filename =file.filename
+            file.save('static/avatar/'+filename)
+
