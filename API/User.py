@@ -29,17 +29,19 @@ userInfo_fields = {
 }
 
 client_orderComment_fields = {
-    'client_comment': fields.String,
-    'client_comment_ts': fields.String,
-    'courier_user_id': fields.Integer,
-    'courier_user_name': fields.String
+    'clientComment': fields.String(attribute='client_comment'),
+    'clientCommentTs': fields.String(attribute='client_comment_ts'),
+    'courierUserId': fields.Integer(attribute='courier_user_id'),
+    'courierUserName': fields.String(attribute='courier_user_name'),
+    'clientScore': fields.Float(attribute='client_score')
 }
 
 courier_orderComment_fields = {
-    'courier_comment': fields.String,
-    'courier_comment_ts': fields.String,
-    'client_user_id': fields.Integer,
-    'client_user_name': fields.String
+    'courierComment': fields.String(attribute='courier_comment'),
+    'courierCommentTs': fields.String(attribute='courier_comment_ts'),
+    'clientUserId': fields.Integer(attribute='client_user_id'),
+    'clientUserName': fields.String(attribute='client_user_name'),
+    'courierScore': fields.Float(attribute='courier_score')
 }
 
 orderNum_rank_fields = {
@@ -120,10 +122,14 @@ class ChangePwd(Resource):
         data = request.get_json(force=True)
         mobile = data['mobile']
         pwd = data['password']
+        oldPwd = data['oldPassword']
         if mobile and pwd:
             user = User.query.filter_by(mobile=mobile).first()
             if not user:
                 return jsonify(code='NACK', message='该手机号未注册!')
+            if oldPwd:
+                if oldPwd != user.password:
+                    return jsonify(code='NACK', message='旧密码不正确!')
             if pwd != user.password:
                 user.password = pwd
                 db.session.commit()
@@ -216,8 +222,7 @@ class AveScore(Resource):
 
 class UserInfo(Resource):
     def post(self):
-        data = request.get_json(force=True)
-        userId = data.get('userId')
+        userId = request.get_json(force=True)
         user = User.query.filter_by(id=userId).first()
         if user:
             return jsonify(code='ACK', message='获取用户信息成功', data=marshal(user, userInfo_fields))
@@ -312,3 +317,23 @@ class UploadImage(Resource):
                 return jsonify(code='ACK', message='头像上传成功')
             except Exception as e:
                 return jsonify(code='NACK', message='头像上传失败' + e.message)
+
+
+class ModifyProfile(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        id = data['userId']
+        gender = data['gender']
+        address = data['address']
+        user = User.query.filter_by(id=id).first()
+        if user:
+            try:
+                user.address = address
+                user.gender = gender
+                db.session.add(user)
+                db.session.commit()
+                return jsonify(code='ACK', message='修改成功')
+            except Exception as e:
+                db.session.rollback()
+                return jsonify(code='NACK', message='服务器发生异常')
+

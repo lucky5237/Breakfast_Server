@@ -2,7 +2,7 @@
 
 from app import api
 from API.User import Login, Register, CheckMobile, ChangePwd, AveScore, UserInfo, BonusRank, OrdersNumRank, UserRank, \
-    Comments, UploadImage
+    Comments, UploadImage, ModifyProfile
 from API.Order import MakeOrder, MyOrderList, Comment, TakeOrder, UpdateStatus, NewestOrder
 from API.Food import SalesRank, PriceRank, AllFood
 
@@ -18,6 +18,7 @@ api.add_resource(BonusRank, '/user/bonusRank')
 api.add_resource(UserRank, '/user/rank')
 api.add_resource(Comments, '/user/commentList')
 api.add_resource(UploadImage, '/user/uploadAvatar')
+api.add_resource(ModifyProfile, '/user/modifyProfile')
 
 # 订单相关路由
 api.add_resource(MakeOrder, '/order/makeOrder')
