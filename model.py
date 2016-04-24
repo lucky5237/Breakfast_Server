@@ -96,12 +96,13 @@ class OrderInfo(db.Model):
     orderdetails = db.relationship('OrderDetail', backref='orderInfo', lazy='select')
     orderComment = db.relationship('OrderComment', backref='orderInfo', uselist=False)
 
-    def __init__(self, data, orderdetails):
+    def __init__(self, data, orderdetails, time):
         self.order_number = data['orderNumber']
         self.amount = data['amount']
         self.bonus = data['bonus']
         self.client_user_id = data['clientUserId']
         self.orderdetails = orderdetails
+        self.create_ts = time
 
 
 class User(db.Model):

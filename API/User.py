@@ -29,6 +29,7 @@ userInfo_fields = {
 }
 
 client_orderComment_fields = {
+    'orderId': fields.Integer(attribute='order_id'),
     'clientComment': fields.String(attribute='client_comment'),
     'clientCommentTs': fields.String(attribute='client_comment_ts'),
     'courierUserId': fields.Integer(attribute='courier_user_id'),
@@ -37,6 +38,7 @@ client_orderComment_fields = {
 }
 
 courier_orderComment_fields = {
+    'orderId': fields.Integer(attribute='order_id'),
     'courierComment': fields.String(attribute='courier_comment'),
     'courierCommentTs': fields.String(attribute='courier_comment_ts'),
     'clientUserId': fields.Integer(attribute='client_user_id'),
@@ -253,11 +255,11 @@ class Comments(Resource):
             if number:
                 OrderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
                                                           OrderComment.courier_user_id == userId).order_by(
-                    OrderComment.courier_user_id.desc()).limit(number).all()
+                    OrderComment.courier_comment_ts.desc()).limit(number).all()
             else:
                 OrderComments = OrderComment.query.filter(OrderComment.courier_comment != None,
                                                           OrderComment.courier_user_id == userId).order_by(
-                    OrderComment.courier_user_id.desc()).all()
+                    OrderComment.courier_comment_ts.desc()).all()
             if OrderComments:
                 return jsonify(code='ACK', message='获取卖家信息成功', data=marshal(OrderComments, courier_orderComment_fields))
             else:
@@ -336,4 +338,3 @@ class ModifyProfile(Resource):
             except Exception as e:
                 db.session.rollback()
                 return jsonify(code='NACK', message='服务器发生异常')
-

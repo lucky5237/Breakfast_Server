@@ -77,7 +77,7 @@ class MakeOrder(Resource):  # 创建订单
             orderDetail = OrderDetail(item)
             foodList.append(orderDetail)
             db.session.add(orderDetail)
-        orderinfo = OrderInfo(data, foodList)
+        orderinfo = OrderInfo(data, foodList, datetime.now())
         try:
             db.session.add(orderinfo)
             db.session.commit()
@@ -92,11 +92,21 @@ class MyOrderList(Resource):  # 获取订单列表
         data = request.get_json(force=True)
         type = data['userType']  # 用户类型
         userId = data['userId']  # 用户id
+        status = data.get('status')
         try:
             if type == 0:  # 下单人
-                orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(client_user_id=userId).all()
+                if status != None:
+                    orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(client_user_id=userId,
+                                                                                            status=status).all()
+                else:
+                    orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(client_user_id=userId).all()
             if type == 1:  # 接单人
-                orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(courier_user_id=userId).all()
+                if status != None:
+                    orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(
+                        courier_user_id=userId, status=status).all()
+                else:
+                    orders = OrderInfo.query.order_by(OrderInfo.create_ts.desc()).filter_by(
+                        courier_user_id=userId).all()
             return jsonify(code='ACK', message='获取全部订单成功', data=marshal(orders, myOrderList_fields))
 
         except Exception as e:
