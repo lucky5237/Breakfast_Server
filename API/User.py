@@ -124,7 +124,7 @@ class ChangePwd(Resource):
         data = request.get_json(force=True)
         mobile = data['mobile']
         pwd = data['password']
-        oldPwd = data['oldPassword']
+        oldPwd = data.get['oldPassword']
         if mobile and pwd:
             user = User.query.filter_by(mobile=mobile).first()
             if not user:
@@ -318,6 +318,7 @@ class UploadImage(Resource):
                 file.save('static/avatar/' + filename)
                 return jsonify(code='ACK', message='头像上传成功')
             except Exception as e:
+                print '头像上传出错' + e.message
                 return jsonify(code='NACK', message='头像上传失败' + e.message)
 
 
